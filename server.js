@@ -35,14 +35,49 @@ app.post("/send", upload.single("file"), async (req, res) => {
       to: email,
       subject: "🎓 Your Certificate of Completion",
       html: `
-      <div style="font-family: 'Segoe UI', sans-serif; padding:20px;">
-        <h2>🎉 Congratulations, ${name}!</h2>
-        <p>You have successfully completed the workshop.</p>
-        <p>Your certificate is attached.</p>
-        <br>
-        <b>Advanced Tech Club</b>
-      </div>
-      `,
+<div style="background:#f4f6f8; padding:30px; font-family: 'Segoe UI', Arial, sans-serif;">
+
+  <div style="max-width:600px; margin:auto; background:#ffffff; padding:30px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+
+    <h2 style="color:#1e293b; margin-bottom:15px;">
+      🎉 Congratulations, ${name || "Participant"}!
+    </h2>
+
+    <p style="color:#475569; font-size:15px; line-height:1.6;">
+      You have successfully completed the workshop conducted by 
+      <b>Advanced Tech Club NIAT X CDU</b>.
+    </p>
+
+    <p style="color:#475569; font-size:15px; line-height:1.6;">
+      Your dedication and participation are truly appreciated. Please find your certificate attached with this email.
+    </p>
+
+    <div style="margin:25px 0; padding:15px; background:#e2e8f0; border-left:4px solid #22c55e; border-radius:6px;">
+      <p style="margin:0; font-size:14px; color:#334155;">
+        🚀 Keep learning, keep building, and keep pushing your limits.
+      </p>
+    </div>
+
+    <p style="color:#475569; font-size:15px;">
+      We look forward to seeing you in our upcoming events.
+    </p>
+
+    <br>
+
+    <p style="margin:0; color:#475569;">Warm regards,</p>
+    <p style="margin:0; font-weight:bold; color:#1e293b;">
+      Adv Tech Club
+    </p>
+
+    <hr style="margin:25px 0; border:none; border-top:1px solid #e5e7eb;">
+
+    <p style="text-align:center; font-size:13px; color:#94a3b8;">
+      See you in the upcoming workshops 🚀
+    </p>
+
+  </div>
+</div>
+`,
       attachments: [
         {
           filename: file.originalname,
@@ -68,7 +103,6 @@ app.post("/send-bulk", upload.array("files"), async (req, res) => {
     const emails = req.body.emails;
     const files = req.files;
 
-    // ensure arrays
     const emailList = Array.isArray(emails) ? emails : [emails];
 
     if (!emailList.length || !files.length) {
@@ -84,18 +118,56 @@ app.post("/send-bulk", upload.array("files"), async (req, res) => {
     });
 
     for (let i = 0; i < emailList.length; i++) {
-      if (!files[i]) continue; // safety
+      if (!files[i]) continue;
 
       await transporter.sendMail({
         from: `Advanced Tech Club <${process.env.EMAIL}>`,
         to: emailList[i],
         subject: "🎓 Your Certificate",
         html: `
-          <div style="font-family: Arial;">
-            <h3>🎉 Congratulations!</h3>
-            <p>Your certificate is attached.</p>
-          </div>
-        `,
+<div style="background:#f4f6f8; padding:30px; font-family: 'Segoe UI', Arial, sans-serif;">
+
+  <div style="max-width:600px; margin:auto; background:#ffffff; padding:30px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+
+    <h2 style="color:#1e293b; margin-bottom:15px;">
+      🎉 Congratulations!
+    </h2>
+
+    <p style="color:#475569; font-size:15px; line-height:1.6;">
+      You have successfully completed the workshop conducted by 
+      <b>Advanced Tech Club NIAT X CDU</b>.
+    </p>
+
+    <p style="color:#475569; font-size:15px; line-height:1.6;">
+      Your dedication and participation are truly appreciated. Please find your certificate attached with this email.
+    </p>
+
+    <div style="margin:25px 0; padding:15px; background:#e2e8f0; border-left:4px solid #22c55e; border-radius:6px;">
+      <p style="margin:0; font-size:14px; color:#334155;">
+        🚀 Keep learning, keep building, and keep pushing your limits.
+      </p>
+    </div>
+
+    <p style="color:#475569; font-size:15px;">
+      We look forward to seeing you in our upcoming events.
+    </p>
+
+    <br>
+
+    <p style="margin:0; color:#475569;">Warm regards,</p>
+    <p style="margin:0; font-weight:bold; color:#1e293b;">
+      Adv Tech Club
+    </p>
+
+    <hr style="margin:25px 0; border:none; border-top:1px solid #e5e7eb;">
+
+    <p style="text-align:center; font-size:13px; color:#94a3b8;">
+      See you in the upcoming workshops 🚀
+    </p>
+
+  </div>
+</div>
+`,
         attachments: [
           {
             filename: files[i].originalname,
