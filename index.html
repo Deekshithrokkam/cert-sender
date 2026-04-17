@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Certificate Sender</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      width: 350px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #4CAF50;
+    }
+
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .success {
+      color: green;
+    }
+
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h2>🎓 Certificate Sender</h2>
+
+    <form id="form">
+      <input type="email" name="email" placeholder="Enter Email" required>
+      <input type="file" name="file" required>
+      <button type="submit">Send Certificate</button>
+    </form>
+
+    <p id="status"></p>
+  </div>
+
+  <script>
+    const form = document.getElementById("form");
+    const statusText = document.getElementById("status");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      statusText.className = "";
+      statusText.innerText = "Sending... ⏳";
+
+      const formData = new FormData(form);
+
+      try {
+        const res = await fetch("http://127.0.0.1:3000/send", {
+          method: "POST",
+          body: formData
+        });
+
+        const text = await res.text();
+
+        if (res.ok) {
+          statusText.innerText = "✅ Email sent successfully!";
+          statusText.className = "success";
+          form.reset();
+        } else {
+          statusText.innerText = "❌ Failed to send email";
+          statusText.className = "error";
+        }
+
+      } catch (err) {
+        statusText.innerText = "⚠️ Server not reachable";
+        statusText.className = "error";
+      }
+    });
+  </script>
+
+</body>
+</html>
