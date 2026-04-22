@@ -2,46 +2,75 @@
 <html>
 <head>
   <title>Certificate Sender</title>
+
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #0f1b2d;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      background: #0f172a;
+      color: white;
+      margin: 0;
+      padding: 0;
     }
 
     .container {
-      background: #1f2e45;
+      max-width: 900px;
+      margin: 60px auto;
+      background: #1e293b;
       padding: 30px;
       border-radius: 12px;
-      width: 600px;
-      color: white;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
     }
 
     h1 {
       text-align: center;
+      margin-bottom: 10px;
+    }
+
+    p.sub {
+      text-align: center;
+      color: #94a3b8;
+      margin-bottom: 25px;
+      font-size: 14px;
     }
 
     .row {
       display: flex;
       gap: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
     }
 
-    input[type="text"], input[type="file"] {
+    input[type="email"], input[type="file"] {
+      flex: 1;
       padding: 10px;
-      border-radius: 6px;
+      border-radius: 8px;
       border: none;
-      width: 100%;
+      outline: none;
+      background: #334155;
+      color: white;
+    }
+
+    input::file-selector-button {
+      background: #475569;
+      border: none;
+      padding: 6px 10px;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
     }
 
     button {
-      padding: 10px 15px;
+      padding: 10px 16px;
+      border-radius: 8px;
       border: none;
-      border-radius: 6px;
       cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
     }
 
     .add-btn {
@@ -52,61 +81,90 @@
     .send-btn {
       background: #22c55e;
       color: white;
-      float: right;
     }
 
-    textarea {
-      width: 100%;
-      height: 80px;
-      margin-bottom: 15px;
-      border-radius: 6px;
-      padding: 10px;
-      border: none;
+    button:hover {
+      opacity: 0.9;
+    }
+
+    #status {
+      margin-top: 18px;
+      text-align: center;
+      font-weight: 500;
+      font-size: 14px;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>🎓 Certificate Sender</h1>
 
-    <!-- BULK PASTE AREA -->
-    <textarea id="bulkEmails" placeholder="Paste emails here (comma, space, or newline separated)"></textarea>
+<div class="container">
+  <h1>🎓 Certificate Sender</h1>
+  <p class="sub">Upload certificates and send them instantly</p>
 
-    <button class="add-btn" onclick="processBulk()">Paste & Split</button>
+  <div id="rows"></div>
 
-    <div id="emailContainer"></div>
-
-    <button class="send-btn">Send All</button>
+  <div class="buttons">
+    <button class="add-btn" onclick="addRow()">+ Add Row</button>
+    <button class="send-btn" onclick="sendAll()">Send All</button>
   </div>
 
-  <script>
-    const container = document.getElementById("emailContainer");
+  <p id="status"></p>
+</div>
 
-    function createRow(email = "") {
-      const row = document.createElement("div");
-      row.className = "row";
+<script>
+function addRow() {
+  const div = document.createElement("div");
+  div.className = "row";
 
-      row.innerHTML = `
-        <input type="text" placeholder="Email address" value="${email}">
-        <input type="file">
-      `;
+  div.innerHTML = `
+    <input type="email" placeholder="Email address" class="email" required>
+    <input type="file" class="file" required>
+  `;
 
-      container.appendChild(row);
+  document.getElementById("rows").appendChild(div);
+}
+
+// default one row
+addRow();
+
+async function sendAll() {
+  const emails = document.querySelectorAll(".email");
+  const files = document.querySelectorAll(".file");
+
+  const formData = new FormData();
+
+  for (let i = 0; i < emails.length; i++) {
+    if (!emails[i].value || !files[i].files[0]) {
+      alert("Please fill all fields");
+      return;
     }
 
-    function processBulk() {
-      const bulkText = document.getElementById("bulkEmails").value;
+    formData.append("emails", emails[i].value);
+    formData.append("files", files[i].files[0]);
+  }
 
-      // Split by comma, space, or newline
-      const emails = bulkText.split(/[\s,]+/).filter(e => e.trim() !== "");
+  document.getElementById("status").innerText = "Sending... ⏳";
 
-      container.innerHTML = ""; // clear previous rows
+  try {
+    const res = await fetch("https://cert-sender.onrender.com/send-bulk", {
+      method: "POST",
+      body: formData
+    });
 
-      emails.forEach(email => {
-        createRow(email.trim());
-      });
+    const text = await res.text();
+
+    if (res.ok) {
+      document.getElementById("status").innerText = "✅ All emails sent successfully";
+    } else {
+      document.getElementById("status").innerText = "❌ Failed to send emails";
     }
-  </script>
+
+  } catch (err) {
+    document.getElementById("status").innerText = "⚠️ Server not reachable";
+  }
+}
+</script>
+
 </body>
 </html>
