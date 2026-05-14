@@ -23,11 +23,16 @@ app.post("/send", upload.single("file"), async (req, res) => {
     }
 
     let transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
       auth: {
         user: process.env.EMAIL,
         pass: process.env.PASS
-      }
+      },
+      connectionTimeout: 60000,
+      greetingTimeout: 30000,
+      socketTimeout: 60000
     });
 
     await transporter.sendMail({
@@ -110,11 +115,16 @@ app.post("/send-bulk", upload.array("files"), async (req, res) => {
     }
 
     let transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
       auth: {
         user: process.env.EMAIL,
         pass: process.env.PASS
-      }
+      },
+      connectionTimeout: 60000,
+      greetingTimeout: 30000,
+      socketTimeout: 60000
     });
 
     for (let i = 0; i < emailList.length; i++) {
@@ -175,6 +185,8 @@ app.post("/send-bulk", upload.array("files"), async (req, res) => {
           }
         ]
       });
+
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
 
     res.send("✅ All emails sent successfully!");
